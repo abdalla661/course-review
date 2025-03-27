@@ -1,5 +1,21 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Poppins } from 'next/font/google';
+import { Quicksand } from 'next/font/google';
+
+const quicksand = Quicksand({
+  subsets: ['latin'],
+  weight: ['300', '400', '700'], // choose needed weights
+  style: ['normal'], // optional: add italic if needed
+  display: 'swap',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '700'], // specify the font weights you need
+  style: ['normal', 'italic'], // optional: include italic styles if needed
+  display: 'swap',
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +36,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={quicksand.className}
       >
         {children}
       </body>
