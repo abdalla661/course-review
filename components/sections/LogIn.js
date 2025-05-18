@@ -5,7 +5,7 @@ import { Mail, Lock } from "lucide-react";
 import InputField from "../atoms/InputField";
 import AuthCard from "../atoms/AuthCard";
 import { useRouter } from "next/navigation";
-import { loginValidationSchema } from "@/schemas/loginSchema";
+import { loginValidationSchema } from "../../lib/validations/loginSchema";
 import { z } from "zod";
 
 const LogInSection = () => {
@@ -46,7 +46,10 @@ const LogInSection = () => {
       if (!res.ok) {
         setErrors({ general: data.message || "Login failed. Please try again." });
       } else {
-        router.push("/dashboard");
+        localStorage.setItem("student", JSON.stringify(data.user));
+        
+
+        router.push("/home");
       }
     } catch (err) {
       setErrors({ general: "Something went wrong. Please try again." });

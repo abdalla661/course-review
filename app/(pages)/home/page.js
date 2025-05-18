@@ -1,155 +1,74 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { UserCircle, LogOut, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import ComboCardWithReview from "@/components/ComboCardWithReview";
 
-export default function Home() {
-  const [search, setSearch] = useState("");
-  const [expandedCourse, setExpandedCourse] = useState(null);
-  const [activeTab, setActiveTab] = useState("notes");
+export default function HomePage() {
+  const [student, setStudent] = useState(null);
+  const [combos, setCombos] = useState([]);
+  const [loading, setLoading] = useState(true);
+ 
+  // 1️⃣ Load student from localStorage
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("student");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setStudent(parsed);
+    } else {
+      console.warn("⚠️ No student found in localStorage");
+    }
+    setLoading(false); // ✅ Always exit loading state after localStorage check
+  }
+}, []);
 
-  const dummyCourses = [
-    { name: "Data Structures", professor: "Dr. Smith", rating: 4.2, reviews: 12 },
-    { name: "Operating Systems", professor: "Prof. Lee", rating: 4.5, reviews: 8 },
-    { name: "Databases", professor: "Dr. Brown", rating: 3.9, reviews: 15 },
-  ];
+  // 2️⃣ Fetch combos for student's department
+  useEffect(() => {
+    if (!student?.department) return;
 
-  const dummyResources = {
-    notes: ["Midterm Summary.pdf", "Lecture Notes Week 1.docx"],
-    exams: ["Final Exam 2023.pdf", "Midterm 2022.docx"],
-  };
+    fetch(`/api/professor-courses?departmentId=${student.department}&studentId=${student._id}`)
 
-  const filteredCourses = dummyCourses.filter((course) =>
-    course.name.toLowerCase().includes(search.toLowerCase())
-  );
+      .then((res) => res.json())
+      .then((data) => {
+        setCombos(data);
+      })
+      .catch((err) => {
+        console.error("❌ Failed to fetch combos:", err);
+      })
+      .finally(() => setLoading(false));
+  }, [student?.department]);
+
+  // 3️⃣ Page loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen p-6 text-center text-gray-600">
+        Loading combos...
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Navbar */}
-      <header className="bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            {/* <Image src="/logo.svg" alt="Course Review Logo" width={40} height={40} /> */}
-            <span className="text-2xl font-semibold text-indigo-700">Course Review</span>
-          </div>
-          <div className="flex items-center gap-4 text-gray-600">
-            <UserCircle className="w-6 h-6" />
-            <LogOut className="w-6 h-6 cursor-pointer hover:text-red-500 transition" />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-indigo-700 mb-6">
+        Welcome{student?.name ? `, ${student.name}` : ""}!
+      </h1>
 
-      {/* Main Content */}
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Department Courses</h1>
+      {/* ✅ Debug info
+      <pre className="text-sm bg-gray-100 p-3 rounded mb-6 border border-gray-300">
+        {JSON.stringify({ student, combos }, null, 2)}
+      </pre> */}
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search for a course..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full mb-10 px-5 py-3 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none text-sm placeholder-gray-400"
-        />
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        Professor–Course Combos
+      </h2>
+        
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {combos.map((combo) => (
+    <ComboCardWithReview key={combo._id} combo={combo} student={student} />
+  ))}
+</div>
 
-        {/* Course Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {filteredCourses.map((course, index) => (
-            <div
-              key={index}
-              className="bg-gray-50 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all space-y-5"
-            >
-              <div>
-                <h3 className="text-2xl font-semibold text-gray-800">{course.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">Prof. {course.professor}</p>
-              </div>
-
-              <div className="flex items-center gap-1 text-yellow-500">
-                {[...Array(Math.round(course.rating))].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400" />
-                ))}
-                <span className="text-sm text-gray-500 ml-2">({course.reviews} reviews)</span>
-              </div>
-
-              <textarea
-                placeholder="Leave a comment..."
-                className="w-full p-3 rounded-xl text-sm bg-white shadow-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none resize-none"
-                rows={2}
-              />
-
-              <div className="flex gap-3">
-                <button className="w-1/2 bg-indigo-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-indigo-700 transition">
-                  Submit Review
-                </button>
-                <button
-                  className="w-1/2 bg-white text-indigo-600 py-2 rounded-xl text-sm font-medium shadow-sm hover:bg-indigo-50 transition"
-                  onClick={() =>
-                    setExpandedCourse(expandedCourse === index ? null : index)
-                  }
-                >
-                  {expandedCourse === index ? "Hide Resources" : "View Resources"}
-                </button>
-              </div>
-
-              {expandedCourse === index && (
-                <div className="mt-6">
-                  {/* Tabs */}
-                  <div className="flex gap-6 mb-4">
-                    {["notes", "exams"].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`text-sm font-medium pb-1 transition-all ${
-                          activeTab === tab
-                            ? "text-indigo-600 border-b-2 border-indigo-600"
-                            : "text-gray-400 border-b-2 border-transparent"
-                        }`}
-                      >
-                        {tab === "notes" ? "Notes" : "Past Exams"}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Resource List */}
-                  <ul className="space-y-3 mb-4">
-                    {dummyResources[activeTab].map((file, i) => (
-                      <li
-                        key={i}
-                        className="bg-white rounded-xl px-4 py-3 shadow-sm text-sm text-gray-700"
-                      >
-                        📄 {file}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Upload */}
-                  <div className="bg-white rounded-xl shadow-sm p-4">
-                    <p className="text-sm font-medium text-gray-700 mb-3">
-                      Upload a new {activeTab === "notes" ? "note" : "exam"}:
-                    </p>
-                    <input
-                      type="file"
-                      className="w-full bg-gray-50 text-sm p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                      accept=".pdf,.doc,.docx"
-                    />
-                    <button className="w-full mt-4 bg-indigo-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-indigo-700 transition">
-                      Submit for Approval
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} Course Review. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
+

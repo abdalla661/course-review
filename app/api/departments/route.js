@@ -1,21 +1,16 @@
 import { NextResponse } from "next/server";
-import Department from "@/lib/models/Department";
 import connectMongodb from "@/lib/dbConnection";
+import Department from "@/lib/models/Department";
 
-export async function GET(request) {
-  try {
-    await connectMongodb();
-    const { searchParams } = new URL(request.url);
-    const facultyId = searchParams.get("facultyId");
+export async function GET(req) {
+  await connectMongodb();
 
-    if (!facultyId) {
-      return NextResponse.json({ message: "Faculty ID is required" }, { status: 400 });
-    }
+  const { searchParams } = new URL(req.url);
+  const facultyId = searchParams.get("facultyId");
 
-    const departments = await Department.find({ faculty: facultyId }).select("name _id");
-    return NextResponse.json(departments);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: "Failed to fetch departments" }, { status: 500 });
-  }
+  const filter = facultyId ? { faculty: facultyId } : {};
+
+  const departments = await Department.find(filter).sort({ createdAt: -1 });
+
+  return NextResponse.json(departments);
 }
