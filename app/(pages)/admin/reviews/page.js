@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Navbar from "@/components/navbar";
 export default function AdminReviewModeration() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +33,7 @@ export default function AdminReviewModeration() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
+      <Navbar role="admin" showBack />
       <h1 className="text-2xl font-bold text-indigo-700">🛠️ Pending Reviews</h1>
 
       {reviews.length === 0 ? (

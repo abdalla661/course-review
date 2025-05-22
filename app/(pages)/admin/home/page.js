@@ -22,7 +22,7 @@ export default function AdminHomePage() {
     },
     {
       title: "Moderate Shared Resources",
-      description: "Coming soon: Approve or reject study resources",
+      description: "Approve or reject study resources",
       path: "/admin/resources", // can be a placeholder for now
     },
   ];

@@ -2,47 +2,38 @@ import { NextResponse } from "next/server";
 import connectMongodb from "@/lib/dbConnection";
 import Resource from "@/lib/models/Resource";
 
-import { writeFile } from "fs/promises";
-import path from "path";
-import { mkdirSync, existsSync } from "fs";
 
 export async function POST(req) {
-  await connectMongodb();
+  try {
+    await connectMongodb();
 
-  const formData = await req.formData();
-  const file = formData.get("file");
-  const tag = formData.get("tag");
-  const combo = formData.get("comboId");
-  const student = formData.get("studentId");
+    const body = await req.json();
 
-  if (!file || file.size > 10 * 1024 * 1024 || file.type !== "application/pdf") {
-    return NextResponse.json({ message: "Invalid file" }, { status: 400 });
+    if (!body.studentId || !body.comboId || !body.file_url || !body.tag) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const resource = await Resource.create({
+  student: body.studentId,
+  combo: body.comboId,
+  tag: body.tag,
+  file_url: body.file_url,
+  title: body.title || "PDF Resource", // fallback only if truly missing
+  status: "pending",
+});
+
+    return NextResponse.json({ success: true, data: resource });
+  } catch (error) {
+    console.error("❌ Resource upload error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const uploadsDir = path.join(process.cwd(), "public", "uploads", "resources");
-  if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
-
-  const fileName = `${Date.now()}-${file.name}`;
-  const filePath = path.join(uploadsDir, fileName);
-
-  await writeFile(filePath, buffer);
-
-  const fileUrl = `/uploads/resources/${fileName}`;
-
-  const resource = await Resource.create({
-    student,
-    combo,
-    tag,
-    file_url: fileUrl,
-    status: "pending",
-    title: file?.name,
-  });
-
-  return NextResponse.json({ success: true, data: resource }, { status: 201 });
 }
+
+
+
 
 export async function GET(req) {
   await connectMongodb();

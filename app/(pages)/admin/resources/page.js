@@ -37,7 +37,7 @@ export default function ResourceModerationPage() {
 
   return (
     <div className="min-h-screen bg-white px-6 py-10 max-w-4xl mx-auto">
-      <Navbar role="admin" />
+      <Navbar role="admin" showBack />
       <br /><br />
       <h1 className="text-2xl font-bold text-indigo-700 mb-6">Moderate Study Resources</h1>
 

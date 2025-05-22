@@ -13,6 +13,7 @@ export default function HomePage() {
   const [combos, setCombos] = useState([]);
   const [loading, setLoading] = useState(true);
 const router = useRouter();
+const [search, setSearch] = useState("");
 
 
 
@@ -69,14 +70,36 @@ useEffect(() => {
   </h1><br></br>
 
 
+
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
         Professor–Course Combos
       </h2>
-        
+        <input
+  type="text"
+  placeholder="Search by course or professor"
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full px-4 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+/>
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  {combos.map((combo) => (
+{combos
+  .filter((combo) => {
+    const courseName = combo.course?.name?.toLowerCase() || "";
+    const courseCode = combo.course?.code?.toLowerCase() || "";
+    const profName = combo.professor?.name?.toLowerCase() || "";
+    const query = search.toLowerCase();
+
+    return (
+      courseName.includes(query) ||
+      courseCode.includes(query) ||
+      profName.includes(query)
+    );
+  })
+  .map((combo) => (
     <ComboCardWithReview key={combo._id} combo={combo} student={student} />
-  ))}
+))}
+
+
 </div>
 
     </div>

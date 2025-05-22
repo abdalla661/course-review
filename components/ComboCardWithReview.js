@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { uploadFiles } from "@/utils/uploadthing";
+
+
+
+
 
 export default function ComboCardWithReview({ combo, student }) {
+  
+
   const [showForm, setShowForm] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
@@ -22,33 +29,9 @@ const [resourceTag, setResourceTag] = useState("notes");
 const [uploadStatus, setUploadStatus] = useState("");
 const [approvedResources, setApprovedResources] = useState([]);
 const [selectedTag, setSelectedTag] = useState("notes");
+const [isUploading, setIsUploading] = useState(false);
 
-const handleUpload = async () => {
-  if (!resourceFile || resourceFile.size > 10 * 1024 * 1024) {
-    setUploadStatus("❌ File too large (max 10MB)");
-    return;
-  }
 
-  const formData = new FormData();
-  formData.append("file", resourceFile);
-  formData.append("tag", resourceTag);
-  formData.append("comboId", combo._id);
-  formData.append("studentId", student._id);
-
-  const res = await fetch("/api/resources/upload", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (res.ok) {
-    setUploadStatus("✅ Submitted for moderation!");
-    setResourceFile(null);
-    setShowUpload(false);
-  } else {
-    setUploadStatus("❌ Upload failed");
-  }
-};
-   
 const fetchApprovedResources = async () => {
   if (showResources) {
     setShowResources(false);
@@ -208,7 +191,7 @@ const data = text ? JSON.parse(text) : [];
   onClick={() => setShowUpload((prev) => !prev)}
   className="text-sm text-indigo-600 hover:underline mt-1 block"
 >
-  {showUpload ? "Cancel Upload" : "Upload Resource"}
+  {showUpload ? "Cancel Upload →" : "Upload Resource →"}
 </button>
 
 
@@ -220,43 +203,132 @@ const data = text ? JSON.parse(text) : [];
   {showResources ? "Hide Resources" : "View Resources"}
 </button>
 
-{/* Upload Modal */}
-{/* Upload Resource Form */}
 {showUpload && (
-  <div className="border p-3 rounded mt-3 bg-gray-50 space-y-2">
-    
-    <h4 className="text-sm font-medium text-gray-700">Upload PDF Resource</h4>
+  <div className="border mt-4 p-4 rounded">
+    <h3 className="font-semibold mb-2 text-gray-700">Upload PDF Resource</h3>
+
+    {/* Tag Dropdown */}
+    <label className="block mb-1 text-sm text-gray-600">Select Type</label>
     <select
       value={resourceTag}
       onChange={(e) => setResourceTag(e.target.value)}
-      className="border rounded px-2 py-1 text-sm"
+      className="w-full px-3 py-2 mb-3 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
     >
+      <option value="">Select tag</option>
       <option value="notes">Notes</option>
       <option value="past_exams">Past Exams</option>
     </select>
-    <label className="block text-sm">
-  <span className="block mb-1 text-gray-700">Choose PDF File</span>
-  <input
-    type="file"
-    accept="application/pdf"
-    onChange={(e) => setResourceFile(e.target.files[0])}
-    className="block w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
-  />
-</label>
 
-    
+    {/* File Input */}
+    <label className="block mb-1 text-sm text-gray-600">Choose File</label>
+    <input
+      type="file"
+      accept=".pdf"
+      onChange={(e) => setResourceFile(e.target.files[0])}
+      className="w-full px-3 py-2 border border-gray-300 rounded mb-4 text-sm"
+    />
 
-    <button
-      onClick={handleUpload}
-      className="w-full bg-indigo-600 text-white py-1 rounded hover:bg-indigo-700 text-sm"
+    {/* Upload Button */}
+    {/* <button
+      onClick={async () => {
+        if (!resourceFile || !resourceTag) {
+          setUploadStatus("❌ Please select tag and file");
+          return;
+        }
+
+        try {
+          const uploaded = await uploadFiles("resourcePdfUploader", {
+            files: [resourceFile],
+          });
+
+         const fileUrl = res?.[0]?.url;
+         await fetch("/api/resources", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    comboId: combo._id,
+    studentId: student._id,
+    tag: resourceTag,
+    file_url: fileUrl,
+  }),
+});
+
+
+
+          if (response.ok) {
+            setUploadStatus("✅ Uploaded!");
+            setShowUpload(false);
+            fetchApprovedResources();
+          } else {
+            setUploadStatus("❌ Upload failed");
+          }
+        } catch (err) {
+          console.error("❌ UploadThing failed:", err);
+          setUploadStatus("❌ Upload failed");
+        }
+      }}
+      className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm"
     >
-      Submit
-    </button>
+      Upload
+    </button> */}
+    <button
+  onClick={async () => {
+    if (!resourceFile || !resourceTag) {
+      setUploadStatus("❌ Please select tag and file");
+      return;
+    }
 
-    {uploadStatus && <p className="text-xs text-gray-600">{uploadStatus}</p>}
+    setIsUploading(true);
+
+    try {
+      const uploaded = await uploadFiles("resourcePdfUploader", {
+        files: [resourceFile],
+      });
+
+      const fileUrl = uploaded?.[0]?.url;
+      const fileName = uploaded?.[0]?.name;
+
+      const response = await fetch("/api/resources/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comboId: combo._id,
+          studentId: student._id,
+          tag: resourceTag,
+          file_url: fileUrl,
+          title: fileName,
+        }),
+      });
+
+      if (response.ok) {
+        setUploadStatus("✅ Uploaded!");
+        setShowUpload(false);
+        fetchApprovedResources();
+      } else {
+        setUploadStatus("❌ Upload failed");
+      }
+    } catch (err) {
+      console.error("❌ UploadThing failed:", err);
+      setUploadStatus("❌ Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  }}
+  disabled={isUploading}
+  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm disabled:opacity-50"
+>
+  {isUploading ? "Uploading..." : "Upload"}
+</button>
+
+
+
+
+    {/* Upload Status */}
+    {uploadStatus && (
+      <p className="text-sm mt-2 text-gray-600">{uploadStatus}</p>
+    )}
   </div>
 )}
-
 
 {/* Approved Resources List */}
 {showResources && (
@@ -277,36 +349,37 @@ const data = text ? JSON.parse(text) : [];
       ))}
     </div>
 
-    {approvedResources.filter((r) => r.tag === selectedTag).length === 0 ? (
-      <p className="text-gray-500 italic">No {selectedTag.replace("_", " ")} uploaded yet.</p>
-    ) : (
-      approvedResources
-        .filter((r) => r.tag === selectedTag)
-        .map((res) => (
-          <div key={res._id} className="flex justify-between items-center py-1">
-            {/* <span>{res.title || "Untitled PDF"}</span> */}
-            <span>
-  {(res.title || res.file_url.split("/").pop())
-    ?.replace(/^\d+-/, "")        // remove timestamp prefix
-    ?.replace(/\.\w+$/, "")       // remove .pdf
-  }
-</span>
-
-
-
-            <a
-              href={res.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-indigo-600 hover:underline text-xs"
+    <div>
+      {approvedResources.filter((r) => r.tag === selectedTag).length === 0 ? (
+        <p className="text-gray-500 italic">
+          No {selectedTag.replace("_", " ")} uploaded yet.
+        </p>
+      ) : (
+        approvedResources
+          .filter((r) => r.tag === selectedTag)
+          .map((res) => (
+            <div
+              key={res._id}
+              className="flex justify-between items-center py-1"
             >
-              Download
-            </a>
-          </div>
-        ))
-    )}
+              <p className="truncate max-w-[70%]">{res.title}</p>
+              <a
+                href={res.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:underline"
+              >
+                Download
+              </a>
+            </div>
+          ))
+      )}
+    </div>
   </div>
 )}
+
+
+
 
 
     </div>
