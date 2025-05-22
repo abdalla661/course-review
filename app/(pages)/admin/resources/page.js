@@ -24,18 +24,6 @@ export default function ResourceModerationPage() {
   fetchPending();
 }, []);
 
-  // useEffect(() => {
-  //   fetchResources();
-  // }, []);
-
-  // const fetchResources = async () => {
-  //   setLoading(true);
-  //   const res = await fetch("/api/resources/moderate");
-  //   const data = await res.json();
-  //   setResources(data);
-  //   setLoading(false);
-  // };
-
   const handleAction = async (id, status) => {
     const res = await fetch(`/api/resources/${id}`, {
       method: "PATCH",
@@ -65,78 +53,50 @@ export default function ResourceModerationPage() {
       ) : (
         <div className="space-y-4">
           {resources.map((res) => (
-            // <div key={res._id} className="border rounded p-4 bg-gray-50 shadow-sm">
-            //   <div className="flex justify-between items-center">
-            //     <div>
-            //       <h2 className="font-semibold text-gray-800 text-sm">{res.tag.toUpperCase()}</h2>
-                  
-            //       <a
-            //         href={res.file_url}
-            //         target="_blank"
-            //         rel="noopener noreferrer"
-            //         className="text-indigo-600 underline text-sm mt-2 inline-block"
-            //       >
-            //         View PDF
-            //       </a>
-            //     </div>
-            //     <div className="flex gap-2">
-            //       <button
-            //         onClick={() => handleAction(res._id, "approved")}
-            //         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
-            //       >
-            //         Approve
-            //       </button>
-            //       <button
-            //         onClick={() => handleAction(res._id, "rejected")}
-            //         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
-            //       >
-            //         Reject
-            //       </button>
-            //     </div>
-            //   </div>
-            // </div>
-            <div className="flex justify-between items-center">
-  <div>
-    <h2 className="font-semibold text-gray-800 text-sm">
-      {res.tag.toUpperCase()}
-    </h2>
+  <div key={res._id} className="border rounded p-4 bg-gray-50 shadow-sm">
+    <div className="flex justify-between items-center">
+      <div>
+        <h2 className="font-semibold text-gray-800 text-sm">
+          {res.tag.toUpperCase()}
+        </h2>
 
-    {res.combo?.course && res.combo?.professor ? (
-      <p className="text-sm text-gray-600 mt-1">
-        Course: {res.combo.course.name} — Taught by: {res.combo.professor.name}
-      </p>
-    ) : (
-      <p className="text-sm text-gray-600 mt-1 italic text-red-400">
-        Combo data missing
-      </p>
-    )}
+        {res.combo?.course && res.combo?.professor ? (
+          <p className="text-sm text-gray-600 mt-1">
+            Course: {res.combo.course.name} — Taught by: {res.combo.professor.name}
+          </p>
+        ) : (
+          <p className="text-sm text-red-400 mt-1 italic">
+            Combo data missing
+          </p>
+        )}
 
-    <a
-      href={res.file_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-indigo-600 underline text-sm mt-2 inline-block"
-    >
-      View PDF
-    </a>
+        <a
+          href={res.file_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-600 underline text-sm mt-2 inline-block"
+        >
+          View PDF
+        </a>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => handleAction(res._id, "approved")}
+          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+        >
+          Approve
+        </button>
+        <button
+          onClick={() => handleAction(res._id, "rejected")}
+          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+        >
+          Reject
+        </button>
+      </div>
+    </div>
   </div>
-  <div className="flex gap-2">
-    <button
-      onClick={() => handleAction(res._id, "approved")}
-      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
-    >
-      Approve
-    </button>
-    <button
-      onClick={() => handleAction(res._id, "rejected")}
-      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
-    >
-      Reject
-    </button>
-  </div>
-</div>
+))}
 
-          ))}
         </div>
       )}
 
