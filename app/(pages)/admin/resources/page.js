@@ -52,6 +52,7 @@ export default function ResourceModerationPage() {
   };
 
   return (
+    
     <div className="min-h-screen bg-white px-6 py-10 max-w-4xl mx-auto">
       <Navbar role="admin" showBack />
       <br /><br />
@@ -69,10 +70,11 @@ export default function ResourceModerationPage() {
                 <div>
                   <h2 className="font-semibold text-gray-800 text-sm">{res.tag.toUpperCase()}</h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    <p>
+                  
   Course: {res.combo?.course?.name || "Unknown Course"} — Taught by:{" "}
   {res.combo?.professor?.name || "Unknown Professor"}
-</p>
+
+
 
                   </p>
                   <a
