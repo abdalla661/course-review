@@ -78,20 +78,21 @@ const handleUpdateUniversity = async (uni) => {
 
 
 const handleDeleteUniversity = async (id) => {
-  const confirmed = confirm("Are you sure you want to delete this university?");
-  if (!confirmed) return;
+  try {
+    const res = await fetch(`/api/universities/${id}`, {
+      method: "DELETE",
+    });
 
-  const res = await fetch(`/api/universities/${id}`, {
-    method: "DELETE",
-  });
-
-  if (res.ok) {
-    setUniversities((prev) => prev.filter((u) => u._id !== id));
-  } else {
-    const result = await res.json();
-    alert("❌ Delete failed: " + result.message);
+    if (res.ok) {
+      setUniversities(universities.filter((uni) => uni._id !== id));
+    } else {
+      console.error("Failed to delete university");
+    }
+  } catch (err) {
+    console.error("Error deleting university:", err);
   }
 };
+
 
 
 

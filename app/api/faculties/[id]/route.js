@@ -31,13 +31,22 @@ export async function PATCH(req, { params }) {
   return NextResponse.json({ success: true, data: updated });
 }
 
-export async function DELETE(_, { params }) {
-  await connectMongodb();
+export async function DELETE(req, { params }) {
+  try {
+    await connectMongodb();
 
-  const deleted = await Faculty.findByIdAndDelete(params.id);
-  if (!deleted) {
-    return NextResponse.json({ message: "Faculty not found" }, { status: 404 });
+    console.log("🔍 Deleting university with ID:", params.id);
+
+    const deleted = await University.findByIdAndDelete(params.id);
+
+    if (!deleted) {
+      console.error("❌ University not found");
+      return NextResponse.json({ error: "University not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Deleted successfully" });
+  } catch (error) {
+    console.error("❌ DELETE Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  return NextResponse.json({ success: true, message: "Faculty deleted" });
 }
