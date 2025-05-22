@@ -69,15 +69,10 @@ export default function ResourceModerationPage() {
                 <div>
                   <h2 className="font-semibold text-gray-800 text-sm">{res.tag.toUpperCase()}</h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    Uploaded by: {res.student?.name || "Student"} <br />
-                    
-  Course: <span className="font-medium">
-    {res.combo?.course?.name || "Unknown Course"}
-  </span> — Taught by:{" "}
-  <span className="font-medium">
-    {res.combo?.professor?.name || "Unknown Professor"}
-  </span>
-
+                    <p>
+  Course: {res.combo?.course?.name || "Unknown Course"} — Taught by:{" "}
+  {res.combo?.professor?.name || "Unknown Professor"}
+</p>
 
                   </p>
                   <a

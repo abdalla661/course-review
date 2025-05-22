@@ -8,8 +8,15 @@ export async function GET() {
     await connectMongodb();
 
     const pending = await Resource.find({ status: "pending" })
-      // .populate("student", "name")
-      // .populate("combo");
+      .populate("student", "name")
+.populate({
+  path: "combo",
+  populate: [
+    { path: "course", select: "name" },
+    { path: "professor", select: "name" },
+  ],
+});
+
 console.log("📦 Pending resources from DB:", pending);
 
     return NextResponse.json(pending);
