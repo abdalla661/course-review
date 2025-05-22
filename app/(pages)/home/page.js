@@ -2,12 +2,22 @@
 
 import { useEffect, useState } from "react";
 import ComboCardWithReview from "@/components/ComboCardWithReview";
+import { useRouter } from "next/navigation";
+//import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import Navbar from "@/components/navbar";
+import dynamic from "next/dynamic";
+
 
 export default function HomePage() {
   const [student, setStudent] = useState(null);
   const [combos, setCombos] = useState([]);
   const [loading, setLoading] = useState(true);
- 
+const router = useRouter();
+
+
+
+<Navbar role="student" />
+
   // 1️⃣ Load student from localStorage
 useEffect(() => {
   if (typeof window !== "undefined") {
@@ -48,15 +58,16 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-indigo-700 mb-6">
-        Welcome{student?.name ? `, ${student.name}` : ""}!
-      </h1>
+    <>
+  <Navbar />
+  <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
+     <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
+      
+      
+  <h1 className="text-3xl font-bold text-indigo-700">
+    Welcome{student?.name ? `, ${student.name}` : ""}!
+  </h1><br></br>
 
-      {/* ✅ Debug info
-      <pre className="text-sm bg-gray-100 p-3 rounded mb-6 border border-gray-300">
-        {JSON.stringify({ student, combos }, null, 2)}
-      </pre> */}
 
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
         Professor–Course Combos
@@ -69,6 +80,14 @@ useEffect(() => {
 </div>
 
     </div>
+<footer className="text-center py-4 text-gray-400 text-sm">
+  © {new Date().getFullYear()} EduPulse. All rights reserved.
+</footer>
+
+  </div>
+</>
+
+   
   );
 }
 

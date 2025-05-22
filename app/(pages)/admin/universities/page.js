@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
+import Navbar from "@/components/navbar";
 export default function UniversityDetails() {
   const { id } = useParams();
   const [university, setUniversity] = useState(null);
@@ -77,6 +77,7 @@ export default function UniversityDetails() {
 
   return (
     <div className="min-h-screen bg-white p-6 max-w-5xl mx-auto">
+      <Navbar role="admin" showBack />
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">{university.name}</h1>
 
       {/* Add Faculty Form */}

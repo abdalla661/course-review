@@ -1,44 +1,44 @@
 import { NextResponse } from "next/server";
 import connectMongodb from "@/lib/dbConnection";
-import Student from "@/lib/models/Student"; // or your actual User model
+import Admin from "@/lib/models/Admin";
+import Student from "@/lib/models/Student";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   await connectMongodb();
+  const { email, password } = await req.json();
 
-  try {
-    const { email, password } = await req.json();
-console.log("🧪 Login Attempt:", email, password);
-
-
-    const user = await Student.findOne({ email });
-if (!user) {
-  console.log("❌ User not found:", email);
-  return NextResponse.json({ message: "User not found" }, { status: 401 });
-}
-
-
-    const isMatch = await bcrypt.compare(password, user.password);
-if (!isMatch) {
-  console.log("❌ Invalid password for:", email);
-  return NextResponse.json({ message: "Invalid password" }, { status: 401 });
-}
-
-
-    // Later: you can set a session/cookie here
-
+  // 1. Try Admin
+  const admin = await Admin.findOne({ email }).select("+password");
+  if (admin && await bcrypt.compare(password, admin.password)) {
+    const token = jwt.sign({ id: admin._id, isAdmin: true }, process.env.JWT_SECRET);
     return NextResponse.json({
-  message: "Login successful",
-  user: {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    department: user.department, // ✅ include this!
-  },
-});
-
-  } catch (err) {
-    console.error("Login error:", err);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+      user: {
+        _id: admin._id,
+        email: admin.email,
+        name: admin.name,
+        isAdmin: true,
+      },
+      token,
+    });
   }
+
+  // 2. Try Student
+  const student = await Student.findOne({ email }).select("+password");
+  if (student && await bcrypt.compare(password, student.password)) {
+    const token = jwt.sign({ id: student._id }, process.env.JWT_SECRET);
+    return NextResponse.json({
+      user: {
+        _id: student._id,
+        email: student.email,
+        name: student.name,
+        department: student.department,
+        isAdmin: false,
+      },
+      token,
+    });
+  }
+
+  return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
 }

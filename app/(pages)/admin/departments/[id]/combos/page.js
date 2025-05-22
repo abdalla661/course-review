@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
+import Navbar from "@/components/navbar";
 export default function CombosPage() {
   const { id } = useParams();
   const [department, setDepartment] = useState(null);
@@ -83,6 +83,7 @@ export default function CombosPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
+      <Navbar role="admin" showBack />
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">
         Professor-Course Combos in {department.name}
       </h1>

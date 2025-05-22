@@ -15,7 +15,6 @@ export async function POST(req) {
     availability,
     teachingQuality,
     comment,
-    commentStatus,
   } = await req.json();
 
   if (!student || !combo) {

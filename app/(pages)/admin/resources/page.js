@@ -1,0 +1,101 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Navbar from "@/components/navbar";
+
+export default function ResourceModerationPage() {
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  const fetchResources = async () => {
+    setLoading(true);
+    const res = await fetch("/api/resources/moderate");
+    const data = await res.json();
+    setResources(data);
+    setLoading(false);
+  };
+
+  const handleAction = async (id, status) => {
+    const res = await fetch(`/api/resources/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+
+    if (res.ok) {
+      setStatusMessage(`✅ Resource ${status}`);
+      fetchResources(); // Refresh list
+    } else {
+      setStatusMessage("❌ Action failed");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white px-6 py-10 max-w-4xl mx-auto">
+      <Navbar role="admin" />
+      <br /><br />
+      <h1 className="text-2xl font-bold text-indigo-700 mb-6">Moderate Study Resources</h1>
+
+      {loading ? (
+        <p className="text-gray-600">Loading resources...</p>
+      ) : resources.length === 0 ? (
+        <p className="text-gray-500">No pending resources to moderate.</p>
+      ) : (
+        <div className="space-y-4">
+          {resources.map((res) => (
+            <div key={res._id} className="border rounded p-4 bg-gray-50 shadow-sm">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="font-semibold text-gray-800 text-sm">{res.tag.toUpperCase()}</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Uploaded by: {res.student?.name || "Student"} <br />
+                    
+  Course: <span className="font-medium">
+    {res.combo?.course?.name || "Unknown Course"}
+  </span> — Taught by:{" "}
+  <span className="font-medium">
+    {res.combo?.professor?.name || "Unknown Professor"}
+  </span>
+
+
+                  </p>
+                  <a
+                    href={res.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 underline text-sm mt-2 inline-block"
+                  >
+                    View PDF
+                  </a>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAction(res._id, "approved")}
+                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleAction(res._id, "rejected")}
+                    className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {statusMessage && (
+        <p className="text-sm text-gray-700 mt-6">{statusMessage}</p>
+      )}
+    </div>
+  );
+}

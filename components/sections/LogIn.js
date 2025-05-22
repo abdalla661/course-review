@@ -1,38 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import InputField from "../atoms/InputField";
 import AuthCard from "../atoms/AuthCard";
 import { useRouter } from "next/navigation";
 import { loginValidationSchema } from "../../lib/validations/loginSchema";
-import { z } from "zod";
 
 const LogInSection = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loginRedirectData, setLoginRedirectData] = useState(null);
 
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setErrors({});
 
-    const result = loginValidationSchema.safeParse({ email, password });
-
-    if (!result.success) {
-      const formErrors = {};
-      result.error.errors.forEach((err) => {
-        if (err.path[0] === "email") formErrors.email = err.message;
-        if (err.path[0] === "password") formErrors.password = err.message;
-      });
-      setErrors(formErrors);
+    const validated = loginValidationSchema.safeParse({ email, password });
+    if (!validated.success) {
+      setErrors(validated.error.flatten().fieldErrors);
+      setLoading(false);
       return;
     }
-
-    setLoading(true);
 
     try {
       const res = await fetch("/api/login", {
@@ -44,25 +38,38 @@ const LogInSection = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ general: data.message || "Login failed. Please try again." });
-      } else {
-        localStorage.setItem("student", JSON.stringify(data.user));
-        
-
-        router.push("/home");
+        setErrors({ general: data.message || "Login failed" });
+        return;
       }
+
+      // ✅ Defer client-side redirects
+      setLoginRedirectData(data.user);
     } catch (err) {
+      console.error("❌ Login error:", err);
       setErrors({ general: "Something went wrong. Please try again." });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && loginRedirectData) {
+      if (loginRedirectData.isAdmin === true) {
+        localStorage.setItem("admin", JSON.stringify(loginRedirectData));
+        router.push("/admin/home");
+      } else {
+        localStorage.setItem("student", JSON.stringify(loginRedirectData));
+        router.push("/home");
+      }
+    }
+  }, [loginRedirectData]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <AuthCard title="Welcome back" subtitle="Sign in to your account to continue">
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField
+            name="email"
             label="Email"
             type="email"
             value={email}
@@ -73,6 +80,7 @@ const LogInSection = () => {
           />
 
           <InputField
+            name="password"
             label="Password"
             type="password"
             value={password}
@@ -108,7 +116,7 @@ const LogInSection = () => {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 mt-4">
           Don’t have an account?{" "}
           <button
             onClick={() => router.push("/signup")}

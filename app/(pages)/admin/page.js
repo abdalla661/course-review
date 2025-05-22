@@ -1,13 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Navbar from "@/components/navbar";
+import ClientOnly from "@/components/ClientOnly";
 export default function AdminDashboard() {
   const [universities, setUniversities] = useState([]);
   const [name, setName] = useState("");
   const [emailDomains, setEmailDomains] = useState("");
   const [editingId, setEditingId] = useState(null);
   const cardStyle = "p-6 border rounded-xl shadow space-y-3 bg-white";
+
+useEffect(() => {
+  const admin = JSON.parse(localStorage.getItem("admin"));
+  if (!admin?.isAdmin) {
+    router.push("/admin/login");
+  }
+}, []);
+
 
   // ✅ Fetch universities directly
 useEffect(() => {
@@ -89,10 +98,12 @@ const handleDeleteUniversity = async (id) => {
 
   return (
     <div className="min-h-screen bg-white p-6 max-w-5xl mx-auto">
+      <ClientOnly><Navbar role="admin" showBack /></ClientOnly>
+      
       <h1 className="text-3xl font-bold text-indigo-700 mb-8">Universities</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* ➕ Add New University */}
+        {/* ➕ Add New University */}<ClientOnly>
         <form
           onSubmit={handleAddUniversity}
           className={cardStyle}
@@ -120,7 +131,7 @@ const handleDeleteUniversity = async (id) => {
           >
             Add
           </button>
-        </form>
+        </form></ClientOnly>
 
         {/* 🏛️ University Cards */}
       {universities.map((uni) => {

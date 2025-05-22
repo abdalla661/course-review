@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
+import Navbar from "@/components/navbar";
 export default function FacultyPage() {
   const { id } = useParams();
   const [faculty, setFaculty] = useState(null);
@@ -72,6 +72,7 @@ export default function FacultyPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
+      <Navbar role="admin" showBack />
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">{faculty.name}</h1>
 
       {/* Add department */}
