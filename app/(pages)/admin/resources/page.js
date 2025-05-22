@@ -7,18 +7,34 @@ export default function ResourceModerationPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
-
   useEffect(() => {
-    fetchResources();
-  }, []);
-
-  const fetchResources = async () => {
-    setLoading(true);
-    const res = await fetch("/api/resources/moderate");
-    const data = await res.json();
-    setResources(data);
-    setLoading(false);
+  const fetchPending = async () => {
+    try {
+      const res = await fetch("/api/resources/moderate");
+      const data = await res.json();
+      console.log("✅ MODERATE DATA:", data);
+      setResources(data);
+    } catch (err) {
+      console.error("❌ Failed to load moderation data", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  fetchPending();
+}, []);
+
+  // useEffect(() => {
+  //   fetchResources();
+  // }, []);
+
+  // const fetchResources = async () => {
+  //   setLoading(true);
+  //   const res = await fetch("/api/resources/moderate");
+  //   const data = await res.json();
+  //   setResources(data);
+  //   setLoading(false);
+  // };
 
   const handleAction = async (id, status) => {
     const res = await fetch(`/api/resources/${id}`, {
