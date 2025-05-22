@@ -7,6 +7,20 @@ export default function ResourceModerationPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
+
+  const fetchResources = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("/api/resources/moderate");
+    const data = await res.json();
+    setResources(data);
+  } catch (err) {
+    console.error("❌ Failed to refresh resources", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
   const fetchPending = async () => {
     try {
@@ -24,20 +38,21 @@ export default function ResourceModerationPage() {
   fetchPending();
 }, []);
 
-  const handleAction = async (id, status) => {
-    const res = await fetch(`/api/resources/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+const handleAction = async (id, status) => {
+  const res = await fetch(`/api/resources/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
 
-    if (res.ok) {
-      setStatusMessage(`✅ Resource ${status}`);
-      fetchResources(); // Refresh list
-    } else {
-      setStatusMessage("❌ Action failed");
-    }
-  };
+  if (res.ok) {
+    setStatusMessage(`✅ Resource ${status}`);
+    fetchResources(); // ✅ Now defined and works
+  } else {
+    setStatusMessage("❌ Action failed");
+  }
+};
+
 
   return (
     
