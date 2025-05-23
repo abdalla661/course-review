@@ -5,6 +5,8 @@ import Resource from "@/lib/models/Resource";
 // ✅ These are needed for .populate() to work
 import Student from "@/lib/models/Student"
 import ProfessorCourse from "@/lib/models/ProfessorCourse";
+import Course from "@/lib/models/Course";
+import Professor from "@/lib/models/Professor";
 
 export async function GET() {
   try {
