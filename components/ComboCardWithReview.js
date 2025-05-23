@@ -285,7 +285,7 @@ const data = text ? JSON.parse(text) : [];
         files: [resourceFile],
       });
 
-      const fileUrl = uploaded?.[0]?.url;
+      const fileUrl = uploaded?.[0]?.ufsUrl;
       const fileName = uploaded?.[0]?.name;
 
       const response = await fetch("/api/resources/upload", {

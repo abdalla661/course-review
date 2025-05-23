@@ -72,7 +72,7 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
-      <Navbar role="admin" showBack />
+      <Navbar role="admin" showBack /><br></br>
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">
         Courses in {department.name}
       </h1>
