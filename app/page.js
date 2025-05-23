@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center px-4 py-12">
       <h1 className="text-4xl sm:text-5xl font-extrabold text-indigo-700 mb-4">
-        Course Review
+        EduPulse
       </h1>
       <p className="text-lg sm:text-xl text-gray-600 mb-8 text-center max-w-xl">
         Discover the best courses and professors through real student feedback. Rate, review, and find shared resources all in one place.
