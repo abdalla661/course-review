@@ -284,9 +284,12 @@ const data = text ? JSON.parse(text) : [];
       const uploaded = await uploadFiles("resourcePdfUploader", {
         files: [resourceFile],
       });
-
-      const fileUrl = uploaded?.[0]?.ufsUrl;
-      const fileName = uploaded?.[0]?.name;
+      if (!uploaded || uploaded.length === 0) {
+  setUploadStatus("❌ Upload failed");
+  return;
+}
+      const fileUrl = uploaded[0]?.url;
+      const fileName = uploaded[0]?.name;
 
       const response = await fetch("/api/resources/upload", {
         method: "POST",
@@ -302,8 +305,8 @@ const data = text ? JSON.parse(text) : [];
 
       if (response.ok) {
         setUploadStatus("✅ Uploaded!");
-        setShowUpload(false);
-        fetchApprovedResources();
+        //setShowUpload(false);
+        //fetchApprovedResources();
       } else {
         setUploadStatus("❌ Upload failed");
       }
