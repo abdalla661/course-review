@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import connectMongodb from "@/lib/mongodb";
-import Resource from "@/models/Resource";
+import connectMongodb from "@/lib/dbConnection";
+import Resource from "@/lib/models/Resource";
 
 // ✅ These are needed for .populate() to work
 import Student from "@/lib/models/Student"
