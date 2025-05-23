@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import connectMongodb from "@/lib/dbConnection";
 import Resource from "@/lib/models/Resource";
-
+import Student from "@/lib/models/Student";
+import ProfessorCourse from "@/models/ProfessorCourse";
 
 export async function GET() {
   try {
