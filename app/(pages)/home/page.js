@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 //import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import Navbar from "@/components/navbar";
 import dynamic from "next/dynamic";
-
+import { ArrowRightOnRectangleIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export default function HomePage() {
   const [student, setStudent] = useState(null);
@@ -17,7 +17,7 @@ const [search, setSearch] = useState("");
 
 
 
-<Navbar role="student" />
+
 
   // 1️⃣ Load student from localStorage
 useEffect(() => {
@@ -57,10 +57,35 @@ useEffect(() => {
       </div>
     );
   }
-
+const handleLogout = () => {
+    if (role === "admin") {
+      localStorage.removeItem("admin");
+      router.push("/login");
+    } else {
+      localStorage.removeItem("student");
+      router.push("/login");
+    }
+  };
   return (
     <>
-  <Navbar />
+  {/* <Navbar /> */}
+  <nav className="fixed top-0 left-0 w-full bg-indigo-600 text-white px-6 py-4 flex items-center justify-between shadow z-50">
+      <div className="flex items-center gap-4">
+        
+        <h1 className="text-xl font-bold tracking-wide cursor-pointer" onClick={() => router.push("#")}>
+          EduPulse
+        </h1>
+      </div>
+
+      <button
+        onClick={handleLogout}
+        title="Logout"
+        className="flex items-center gap-1 text-sm hover:text-red-200 transition"
+      >
+        <ArrowRightOnRectangleIcon className="w-5 h-5" />
+        <span className="hidden sm:inline">Logout</span>
+      </button>
+    </nav>
   <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
      <div className="min-h-screen px-6 py-10 max-w-4xl mx-auto">
       
