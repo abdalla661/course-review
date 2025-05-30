@@ -55,10 +55,17 @@ const data = text ? JSON.parse(text) : [];
   }
 
   const res = await fetch(`/api/reviews?combo=${combo._id}`);
-  const data = await res.json();
+  let data = [];
+  try {
+    const json = await res.json();
+    data = Array.isArray(json) ? json : json.data || [];
+  } catch {
+    console.error("❌ Failed to parse reviews response");
+  }
   setComments(data);
   setShowReviews(true);
 };
+
 
 
   const handleChange = (e) => {

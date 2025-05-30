@@ -15,3 +15,11 @@ export async function PATCH(req, { params }) {
   const updated = await Resource.findByIdAndUpdate(id, { status }, { new: true });
   return NextResponse.json(updated);
 }
+export async function DELETE(req, { params }) {
+  await connectMongodb();
+  const deleted = await Resource.findByIdAndDelete(params.id);
+  if (!deleted) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+  return NextResponse.json({ message: "Deleted" });
+}

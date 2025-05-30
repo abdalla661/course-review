@@ -34,23 +34,50 @@ export async function POST(req) {
 
   return NextResponse.json({ success: true, data: review }, { status: 201 });
 }
-  export async function GET(req) {
-  await connectMongodb();
 
-  const { searchParams } = new URL(req.url);
-  const comboId = searchParams.get("combo");
+export async function GET(req) {
+  try {
+    await connectMongodb();
 
-  if (!comboId) {
-    return NextResponse.json({ message: "Missing combo ID" }, { status: 400 });
-  }
+    const { searchParams } = new URL(req.url);
+    const studentId = searchParams.get("studentId");
+    const comboId = searchParams.get("combo");
 
-  const reviews = await Review.find({
+    let filter = {};
+    if (comboId) {
+  filter = {
     combo: comboId,
     commentStatus: "approved",
     comment: { $ne: "" },
-  }).select("comment createdAt"); // only return what's needed
-
-  return NextResponse.json(reviews);
+  };
+} else if (studentId && studentId !== "undefined") {
+  filter = { student: studentId };
+} else {
+  return NextResponse.json({ message: "Missing valid combo or studentId" }, { status: 400 });
 }
+
+
+    console.log("Fetching reviews with filter:", filter);
+
+    const reviews = await Review.find(filter)
+      .populate({
+        path: "combo",
+        populate: [
+          { path: "course", select: "name" },
+          { path: "professor", select: "name" }
+        ]
+      })
+      .select("gradingFairness organization availability teachingQuality comment commentStatus combo");
+
+    console.log("Fetched reviews:", reviews);
+
+    return NextResponse.json({ success: true, data: reviews });
+  } catch (error) {
+    console.error("❌ Error in /api/reviews GET:", error);
+    return NextResponse.json({ success: false, message: error.message || "Internal Server Error" }, { status: 500 });
+  }
+}
+
+
 
 

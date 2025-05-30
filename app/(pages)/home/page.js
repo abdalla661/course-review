@@ -103,6 +103,21 @@ const fetchCombos = () => {
     Welcome{student?.name ? `, ${student.name}` : ""}!
   </h1><br></br>
 
+<div className="flex  gap-4 my-4">
+  
+  <button
+    onClick={() => router.push('/my-resources')}
+    className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
+  >
+    View My Uploaded Resources
+  </button>
+  <button
+    onClick={() => router.push('/my-reviews')}
+    className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
+  >
+    View My Reviews
+  </button>
+</div>
 
 
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
