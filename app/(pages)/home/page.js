@@ -58,14 +58,16 @@ useEffect(() => {
     );
   }
 const handleLogout = () => {
-    if (role === "admin") {
-      localStorage.removeItem("admin");
-      router.push("/login");
-    } else {
-      localStorage.removeItem("student");
-      router.push("/login");
-    }
-  };
+  const role = localStorage.getItem("role"); // 🔥 Fetch from localStorage
+  if (role === "admin") {
+    localStorage.removeItem("admin");
+    router.push("/login");
+  } else {
+    localStorage.removeItem("student");
+    router.push("/login");
+  }
+};
+
   return (
     <>
   {/* <Navbar /> */}
