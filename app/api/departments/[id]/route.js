@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import connectMongodb from "@/lib/dbConnection";
 import Department from "@/lib/models/Department";
 
-export async function GET(_, { params }) {
+export async function GET(req, context) {
   await connectMongodb();
 
+  const params = await context.params;  // 🔥 Await context.params
   const department = await Department.findById(params.id);
 
   if (!department) {
@@ -13,6 +14,7 @@ export async function GET(_, { params }) {
 
   return NextResponse.json({ success: true, data: department });
 }
+
 
 export async function POST(req) {
   await connectMongodb();

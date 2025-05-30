@@ -67,6 +67,13 @@ const handleLogout = () => {
     router.push("/login");
   }
 };
+const fetchCombos = () => {
+  if (!student?.department) return;
+  fetch(`/api/professor-courses?departmentId=${student.department}&studentId=${student._id}`)
+    .then((res) => res.json())
+    .then((data) => setCombos(data))
+    .catch((err) => console.error("❌ Failed to fetch combos:", err));
+};
 
   return (
     <>
@@ -123,7 +130,7 @@ const handleLogout = () => {
     );
   })
   .map((combo) => (
-    <ComboCardWithReview key={combo._id} combo={combo} student={student} />
+    <ComboCardWithReview key={combo._id} combo={combo} student={student} refreshCombos={fetchCombos} />
 ))}
 
 

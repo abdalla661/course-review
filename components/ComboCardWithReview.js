@@ -7,7 +7,7 @@ import { uploadFiles } from "@/utils/uploadthing";
 
 
 
-export default function ComboCardWithReview({ combo, student }) {
+export default function ComboCardWithReview({ combo, student ,refreshCombos}) {
   
 
   const [showForm, setShowForm] = useState(false);
@@ -85,14 +85,12 @@ const data = text ? JSON.parse(text) : [];
       body: JSON.stringify(payload),
     });
      //const res = await fetch(`/api/professor-courses?departmentId=${student.department}&studentId=${student._id}`);
+if (res.ok) {
+  setSubmitted(true);
+  refreshCombos?.();
 
+}
 
-    
-    if (res.ok) {
-      setSubmitted(true);
-    } else {
-      alert("❌ Failed to submit review");
-    }
   };
 
   return (
@@ -142,7 +140,7 @@ const data = text ? JSON.parse(text) : [];
 )}
 
 
-      {submitted && (
+      {submitted && !combo.hasReviewed && (
   <div className="text-sm space-y-1">
     <p className="text-green-600">✅ Review submitted!</p>
     {formData.comment?.trim() && (
@@ -150,6 +148,7 @@ const data = text ? JSON.parse(text) : [];
     )}
   </div>
 )}
+
 
 
       {showForm && !submitted && (
